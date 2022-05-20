@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -24,6 +24,5 @@ export default {
   position: absolute;
   height: 100%;
   width: 100%;
-  background-color: rgb(99, 99, 99);
 }
 </style>
