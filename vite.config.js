@@ -22,7 +22,6 @@ module.exports = defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
-        home: path.resolve(__dirname, 'home/index.html')
       },
       output: {
         assetFileNames: 'static/css/[name].css',

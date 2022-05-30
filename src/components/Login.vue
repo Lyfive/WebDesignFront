@@ -1,51 +1,66 @@
 <script>
-import axios from "axios"
 
 export default {
   data() {
     return {
       username: "",
       password: "",
-      status_22: "public\\22_open.png",
-      status_33: "public\\33_open.png",
+      status_22: "22_open.png",
+      status_33: "33_open.png",
       // 构建版本去掉public
+    }
+  },
+  created() {
+    // 判断是否登录
+    if (this.$cookies.get("LyFiveToken") != null) {
+      this.$router.push("/manage")
     }
   },
   methods: {
     submit() {
-      this.$router.push('/manage')
       // 生成版本
-      // let username = this.username;
-      // let password = this.password;
+      let username = this.username;
+      let password = this.password;
       // console.log(this.username, this.password)
-      // axios.post("//127.0.0.1:8080/login", {
-      //   id: "LyFive",
-      //   username: username,
-      //   password: password,
-      // })
-      //   .then(res => {
-      //     console.log(res)
-      //     if (res.code == 200 && res.data["msg"] == 200) {
-      //       alert("登录成功！")
-      //     } else {
-      //       console.log(this.username + this.password)
-      //       alert("账号或密码错误！")
-      //     }
-      //   })
-      //   .catch(err => {
-      //     console.error(err);
-      //   })
+      if (this.$cookies.get("Token") != null) {
+        this.$router.push("/manage")
+      } else {
+        this.$axios.post("/login", {
+          username: username,
+          password: password,
+        })
+            .then(res => {
+              // console.log(res.headers)
+              // console.log(res.data['code'])
+              if (res.data['code'] === 200) {
+                this.$cookies.set("LyFive", res.data['data'], '1d')
+                this.$cookies.set("LyFiveToken", res.headers['token'], '1d')
+                console.log(this.$cookies.get("LyFiveToken"))
+                this.$store.state.user = 1
+                alert("登录成功！")
+                this.$router.push('/manage')
+              } else {
+                alert("账号或密码错误！")
+              }
+            })
+            .catch(err => {
+              console.error(err);
+            })
+      }
+    },
+    register() {
+      this.$router.push("/register")
     },
     print() {
       console.log(this.$data)
     },
     close() {
-      this.status_22 = "public\\22_close.png";
-      this.status_33 = "public\\33_close.png";
+      this.status_22 = "22_close.png";
+      this.status_33 = "33_close.png";
     },
     open() {
-      this.status_22 = "public\\22_open.png";
-      this.status_33 = "public\\33_open.png";
+      this.status_22 = "22_open.png";
+      this.status_33 = "33_open.png";
     }
   },
 }
@@ -77,10 +92,10 @@ export default {
             </div>
           </div>
           <div class="clk-button">
-            <button>
+            <button @click="register">
               <p>注册</p>
             </button>
-            <button v-on:click="submit">
+            <button @click="submit">
               <p>登录</p>
             </button>
           </div>
@@ -192,10 +207,7 @@ export default {
   border-radius: 8px 8px 8px 8px;
   border-color: rgb(143, 143, 143);
   padding-left: 1rem;
-  //box-shadow: inset 1px #333;
-  overflow: hidden;
-  line-height: 3rem;
-  font-size: 1.2rem;
+//box-shadow: inset 1px #333; overflow: hidden; line-height: 3rem; font-size: 1.2rem;
 }
 
 .search input {

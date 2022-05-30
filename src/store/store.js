@@ -6,7 +6,7 @@ import {
 const userInfo = {
     state() {
         return {
-            user: 0
+            user: 0,
         }
     },
     mutations: {
@@ -18,8 +18,8 @@ const userInfo = {
     },
     actions: {
         updateUser({
-            commit
-        }, payload) {
+                       commit
+                   }, payload) {
             commit('updateUser', payload)
         }
     }

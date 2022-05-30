@@ -14,6 +14,10 @@ export default {
 </script>
 
 <style>
+* {
+  overflow: hidden;
+}
+
 #app {
   position: absolute;
   height: 100%;
