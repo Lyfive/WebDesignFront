@@ -5,7 +5,7 @@
       <el-col :span="6">
         <el-input v-model="number" placeholder="请输入学号"></el-input>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="8">
         <el-button type="primary" @click="handleFind()">查询</el-button>
         <el-button type="primary" @click="addStudent()" style="margin-right: 15px;margin-left: 15px">添加学生</el-button>
         <el-dialog
@@ -89,6 +89,7 @@
             </el-col>
           </el-row>
         </el-dialog>
+
         <el-popconfirm
             title="你确定要删除选择项吗"
             @confirm="handleDeleteChecked()"
@@ -97,12 +98,81 @@
             <el-button type="danger" v-if="showDelete">删除</el-button>
           </template>
         </el-popconfirm>
+
+        <el-popconfirm
+            title="你确定要转入选择项吗"
+            @confirm="clickTransfer"
+        >
+          <template #reference>
+            <el-button type="warning" v-if="showDelete">转入</el-button>
+          </template>
+        </el-popconfirm>
+
+        <el-dialog
+            title="请选择转入班级"
+            v-model="dialogTransfer"
+            width="30%"
+        >
+          <el-form ref="transferForm" :model="studentForm" label-width="120px">
+            <el-form-item label="请选择学院">
+              <el-select v-model="studentForm.fid" placeholder="学院" @change="updateDepartments(studentForm.fid)">
+                <el-option
+                    v-for="item in faculties"
+                    :key="item.fid"
+                    :label="item.name"
+                    :value="item.fid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择系">
+              <el-select v-model="studentForm.did" clearable placeholder="系" @change="updateSessions(studentForm.did)">
+                <el-option
+                    v-for="item in departments"
+                    :key="item.did"
+                    :label="item.name"
+                    :value="item.did">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择年级">
+              <el-select v-model="studentForm.session" placeholder="年级"
+                         @change="updateClasses(studentForm.did,studentForm.session)">
+                <el-option
+                    v-for="item in sessions"
+                    :key="item.session"
+                    :label="item.session"
+                    :value="item.session">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择班级">
+              <el-select v-model="studentForm.sid" placeholder="班级">
+                <el-option
+                    v-for="item in classes"
+                    :key="item.sid"
+                    :label="item.name"
+                    :value="item.sid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <el-row :gutter="10" justify="center">
+            <el-col :span="6">
+              <el-button @click="dialogTransfer = false">取 消</el-button>
+            </el-col>
+            <el-col :span="6">
+              <el-button type="primary" @click="handleModifyChecked(studentForm.sid)">确 定</el-button>
+            </el-col>
+          </el-row>
+        </el-dialog>
+
+
       </el-col>
     </el-row>
   </div>
   <el-table
       ref="multipleTableRef"
-      :data=studentList
+      :data=studentList.arr
       @selection-change="isShow()"
       table-layout="fixed"
       style="width: 100%">
@@ -259,7 +329,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import {defineComponent, reactive} from 'vue'
 
 function student(number, name, sex, birthday, Class, Session) {
   return {
@@ -276,9 +346,10 @@ export default defineComponent({
   data() {
     return {
       number: "",
-      studentList: [student('2005010705', '李映飞', '男', '2002-11-15', '计算机科学与技术七班', '20'), student("2005010704", "LyFive", "男", "2002-11-15", "计算机科学与技术七班", '20')],
+      studentList: reactive({arr: []}),
       dialogModify: false,
       dialogAdd: false,
+      dialogTransfer: false,
       showDelete: false,
       done: false,
       studentForm: {
@@ -309,7 +380,7 @@ export default defineComponent({
           "token": this.$cookies.get('LyFiveToken')
         }
       }).then(res => {
-        this.studentList = res.data.students
+        this.studentList.arr = res.data.students
         console.log(res)
       }).catch(err => {
         if (err.response.status == 401) {
@@ -322,7 +393,7 @@ export default defineComponent({
     clickEdit(index) {
       // todo
       console.log(index)
-      let stu = this.studentList[index]
+      let stu = this.studentList.arr[index]
       this.studentForm.student = student(stu.number, stu.name, stu.sex, stu.birthday, stu.class)
       this.$axios.get("/mid/faculties", {
         headers: {
@@ -340,21 +411,25 @@ export default defineComponent({
       })
       this.dialogModify = true
     },
+    clickTransfer() {
+      this.updateFaculties()
+      this.dialogTransfer = true
+    },
     handleEdit(index) {
       // todo
-      this.studentList[index] = this.studentForm.student
-      this.studentList[index].class = this.$refs.className.selectedLabel
+      this.studentList.arr[index] = this.studentForm.student
+      this.studentList.arr[index].class = this.$refs.className.selectedLabel
       const sid = this.studentForm.sid
-      console.log(this.studentList[index])
+      console.log(this.studentList.arr[index])
       console.log(sid)
       this.$axios({
         method: 'put',
         url: '/student/modify',
         data: {
-          number: this.studentList[index].number,
-          name: this.studentList[index].name,
-          sex: this.studentList[index].sex,
-          birthday: this.studentList[index].birthday,
+          number: this.studentList.arr[index].number,
+          name: this.studentList.arr[index].name,
+          sex: this.studentList.arr[index].sex,
+          birthday: this.studentList.arr[index].birthday,
           sid: this.studentForm.sid
         },
         headers: {
@@ -380,7 +455,7 @@ export default defineComponent({
           "token": this.$cookies.get('LyFiveToken')
         }
       }).then(res => {
-        this.studentList = res.data.students
+        this.studentList.arr = res.data.students
         console.log(res)
       }).catch(err => {
         if (err.response.status == 401) {
@@ -400,7 +475,7 @@ export default defineComponent({
         method: 'delete',
         url: '/student/delete',
         data: {
-          numbers: [this.studentList[index].number]
+          numbers: [this.studentList.arr[index].number]
         },
         headers: {
           "token": this.$cookies.get('LyFiveToken')
@@ -408,7 +483,7 @@ export default defineComponent({
       }).then(res => {
         if (res.data.code == 200) {
           this.$message.success('删除成功')
-          this.studentList.splice(index, 1)
+          this.studentList.arr.splice(index, 1)
         } else {
           this.$message.error('删除失败')
         }
@@ -421,7 +496,6 @@ export default defineComponent({
       })
     },
     handleDeleteChecked() { // 删除选中的行
-      // todo
       let numbers = []
       for (let i = 0; i < this.$refs.multipleTableRef.getSelectionRows().length; i++) {
         numbers.push(this.$refs.multipleTableRef.getSelectionRows()[i].number)
@@ -440,7 +514,7 @@ export default defineComponent({
         if (res.data['code'] == 200) {
           this.$message.success('删除成功')
           for (let i = 0; i < this.$refs.multipleTableRef.getSelectionRows().length; i++) {
-            this.studentList.splice(this.$refs.multipleTableRef.getSelectionRows()[i].index, 1)
+            this.studentList.arr.splice(this.$refs.multipleTableRef.getSelectionRows()[i].index, 1)
           }
         } else {
           this.$message.error('删除失败')
@@ -451,6 +525,48 @@ export default defineComponent({
         }
       })
 
+    },
+    handleModifyChecked(sid) {
+      // todo
+      // 修改选中的行
+      let numbers = []
+      for (let i = 0; i < this.$refs.multipleTableRef.getSelectionRows().length; i++) {
+        numbers.push(this.$refs.multipleTableRef.getSelectionRows()[i].number)
+      }
+      console.log(numbers)
+      if (sid == null || sid <= 0) {
+        this.$message.error('请选择学生')
+        return
+      }
+      let dataForm = new FormData()
+      this.$axios({
+            method: 'put',
+            url: '/student/transfer',
+            data: {
+              numbers: numbers,
+              sid: sid,
+            },
+            headers: {
+              "token": this.$cookies.get('LyFiveToken')
+            },
+          }
+      ).then(res => {
+        this.dialogTransfer = false
+        if (res.data['code'] == 200) {
+          this.$message.success('修改成功')
+          this.getAllStudents()
+        } else {
+          this.$message.error('修改失败')
+        }
+      }).catch(err => {
+
+        this.dialogTransfer = false
+        if (err.response.status == 401) {
+          this.$message.error("权限不足")
+        } else {
+          this.$message.error('修改失败')
+        }
+      })
     },
     handleAdd() {
       // todo
@@ -481,11 +597,13 @@ export default defineComponent({
       })
       this.dialogAdd = false
     },
+
     isShow() {
       // todo
       console.log(this.$refs.multipleTableRef.getSelectionRows().length)
       this.$refs.multipleTableRef.getSelectionRows().length === 0 ? this.showDelete = false : this.showDelete = true
     },
+
     addStudent() {
       // todo
       this.studentForm.student = student('', '', '男', '', '')
@@ -497,15 +615,18 @@ export default defineComponent({
       this.studentForm.session = ""
       this.studentForm.sid = ""
 
+      this.updateFaculties()
+      this.dialogAdd = true
+    },
+
+    updateFaculties() {
       this.$axios.get("/mid/faculties", {
         headers: {
           "token": this.$cookies.get('LyFiveToken')
         }
       }).then(res => {
-        console.log(res.data.data)
         this.faculties = res.data.data
       })
-      this.dialogAdd = true
     },
 
     updateDepartments(fid) {

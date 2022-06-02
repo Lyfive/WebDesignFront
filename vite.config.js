@@ -1,5 +1,5 @@
 import {
-  defineConfig
+    defineConfig, loadEnv
 } from 'vite'
 
 import path from 'path'
@@ -10,33 +10,34 @@ import Components from 'unplugin-vue-components/vite'
 import {ElementPlusResolver} from 'unplugin-vue-components/resolvers'
 
 module.exports = defineConfig({
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      'vue-i18n': 'vue-i18n/dist/vue-i18n.esm-browser.prod.js'
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+            'vue-i18n': 'vue-i18n/dist/vue-i18n.esm-browser.prod.js'
+        },
+        extensions: ['.js', '.mjs']
     },
-    extensions: ['.js', '.mjs']
-  },
-  build: {
-    outDir: 'dist',
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
-      output: {
-        assetFileNames: 'static/css/[name].css',
-        chunkFileNames: 'static/js/[name].js',
-        entryFileNames: 'static/js/[name].js'
-      }
-    }
-  },
-  plugins: [
-    vue(),
-    AutoImport({
-      resolvers: [ElementPlusResolver()],
-    }),
-    Components({
-      resolvers: [ElementPlusResolver()],
-    }),
-  ]
+    build: {
+        outDir: 'dist',
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, 'index.html'),
+            },
+            output: {
+                assetFileNames: 'static/css/[name].css',
+                chunkFileNames: 'static/js/[name].js',
+                entryFileNames: 'static/js/[name].js'
+            }
+        },
+
+    },
+    plugins: [
+        vue(),
+        AutoImport({
+            resolvers: [ElementPlusResolver()],
+        }),
+        Components({
+            resolvers: [ElementPlusResolver()],
+        }),
+    ]
 })

@@ -67,8 +67,20 @@ export default {
     },
     changeBgcolor() {
       this.$refs.bg.style.backgroundColor = this.color;
+    },
+
+    goToAdminSet() {
+      this.$router.push('/admin')
+    },
+  },
+  computed: {
+    userInfo() {
+      return {
+        username: this.userName,
+        head: this.head,
+      }
     }
-  }
+  },
 }
 </script>
 
@@ -103,7 +115,7 @@ export default {
               <el-col :span="9">
                 <div id="introduce-head">
                 <span>
-                  <el-button type="primary" style="height: 100%;width: 100%" :color="color" plain>
+                  <el-button type="primary" style="height: 100%;width: 100%" :color="color" plain @click="goToAdminSet()">
                   <el-image style="" class="center"
                             :src="head"
                             fit="scale-down"
@@ -208,7 +220,7 @@ export default {
               <el-menu-item index="updateGrade">成绩更新</el-menu-item>
               <!--            <el-menu-item index="createGrade">生成成绩报表</el-menu-item>-->
             </el-sub-menu>
-            <el-menu-item index="adminSet">
+            <el-menu-item index="admin">
               <el-icon>
                 <setting/>
               </el-icon>

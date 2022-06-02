@@ -58,8 +58,8 @@ const routes = [
                 mate: ["成绩管理", "成绩更新"],
             },
             {
-                path: "/adminSet",
-                component: () => import("@/page/adminSet.vue"),
+                path: "/admin",
+                component: () => import("@/page/admin.vue"),
                 mate: ["系统设置"],
             }
         ]
