@@ -80,6 +80,7 @@ export default defineComponent({
   },
   data() {
     return {
+      index: 0,
       gradesData: [
         {
           "number": "2005010702",
@@ -142,7 +143,8 @@ export default defineComponent({
           data: ['Java', '数学', '英语', '体育']
         },
         xAxis: {
-          position: 'top'
+          position: 'top',
+          max: 100,
         },
         series: [
           {

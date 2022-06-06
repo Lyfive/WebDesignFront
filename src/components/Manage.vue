@@ -9,6 +9,7 @@ import {
   CaretBottom,
   Delete,
   UserFilled,
+  List,
   Link,
 } from '@element-plus/icons-vue'
 
@@ -23,6 +24,7 @@ import {
 export default {
   components: {
     Link,
+    List,
     UserFilled,
     Delete,
     ElButton,
@@ -115,7 +117,8 @@ export default {
               <el-col :span="9">
                 <div id="introduce-head">
                 <span>
-                  <el-button type="primary" style="height: 100%;width: 100%" :color="color" plain @click="goToAdminSet()">
+                  <el-button type="primary" style="height: 100%;width: 100%" :color="color" plain
+                             @click="goToAdminSet()">
                   <el-image style="" class="center"
                             :src="head"
                             fit="scale-down"
@@ -220,6 +223,12 @@ export default {
               <el-menu-item index="updateGrade">成绩更新</el-menu-item>
               <!--            <el-menu-item index="createGrade">生成成绩报表</el-menu-item>-->
             </el-sub-menu>
+            <el-menu-item index="education">
+              <el-icon>
+                <List/>
+              </el-icon>
+              <span>教务管理</span>
+            </el-menu-item>
             <el-menu-item index="admin">
               <el-icon>
                 <setting/>
