@@ -38,11 +38,11 @@ export default {
           [
             {
               name: '47f9f39376e7a419bef260e6749cb121.jpg',
-              url: '/static/img/47f9f39376e7a419bef260e6749cb121.jpg',
+              url: 'http://127.0.0.1:8080/static/img/47f9f39376e7a419bef260e6749cb121.jpg',
             },
             {
               name: '30616305ef290e389d9019a0683a8046.jpg',
-              url: '/static/img/30616305ef290e389d9019a0683a8046.jpg',
+              url: 'http://127.0.0.1:8080/static/img/30616305ef290e389d9019a0683a8046.jpg',
             }
           ],
     }
@@ -60,9 +60,10 @@ export default {
       const formData = new FormData()
       if (this.uploadFile.raw != null) {
         formData.append('img', this.uploadFile.raw)
-      }else{
+      } else {
         console.log(this.uploadFile.url)
-        formData.append('url',this.uploadFile.url)
+        const re = /\/static\/img.*/
+        formData.append('url', re.exec(this.uploadFile.url)[0])
       }
       formData.append('id', this.$cookies.get('LyFive').id)
       this.$axios({
@@ -75,6 +76,8 @@ export default {
         }
       }).then(res => {
         this.$message.success('上传成功')
+        this.$store.commit('setAvatar', res.data["url"])
+        console.log(res.data)
         this.dialogVisible = false
       })
       this.dialogVisible = false

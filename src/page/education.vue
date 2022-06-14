@@ -88,7 +88,6 @@
           </el-col>
 
         </el-form-item>
-
         <el-form-item label="全部课程">
 
           <el-col :span="14">
@@ -152,11 +151,11 @@
       v-model="dialog[0]"
   >
     <el-form ref="form" :model="addFacultyForm" label-width="auto">
-      <el-form-item label="请输入学院名称">
-        <el-input v-model="addFacultyForm.name" placeholder="学院名称"/>
+      <el-form-item label="学院名称">
+        <el-input v-model="addFacultyForm.name" placeholder="请输入学院名称"/>
       </el-form-item>
-      <el-form-item label="请输入学院代码">
-        <el-input v-model="addFacultyForm.code" placeholder="学院代码"/>
+      <el-form-item label="学院代码">
+        <el-input v-model="addFacultyForm.code" placeholder="请输入两位学院代码数字（如：05）"/>
       </el-form-item>
       <el-form-item label="">
         <el-button @click="dialog[0] = false">取 消</el-button>
@@ -170,11 +169,11 @@
       v-model="dialog[1]"
   >
     <el-form ref="form" :model="addDepartmentForm" label-width="auto">
-      <el-form-item label="请输入系名称">
-        <el-input v-model="addDepartmentForm.name" placeholder="系名"/>
+      <el-form-item label="系名称">
+        <el-input v-model="addDepartmentForm.name" placeholder="请输入系名"/>
       </el-form-item>
-      <el-form-item label="请输入系代码">
-        <el-input v-model="addDepartmentForm.code" placeholder="系代码"/>
+      <el-form-item label="系代码">
+        <el-input v-model="addDepartmentForm.code" placeholder="请输入两位系代码数字（如：01）"/>
       </el-form-item>
       <el-form-item label="">
         <el-button @click="dialog[1] = false">取 消</el-button>
@@ -188,8 +187,8 @@
       v-model="dialog[2]"
   >
     <el-form ref="form" :model="addSessionForm" label-width="auto">
-      <el-form-item label="请输入系年级">
-        <el-input v-model="addSessionForm.session" placeholder="年级"/>
+      <el-form-item label="系年级">
+        <el-input v-model="addSessionForm.session" placeholder="请输入两位系年级数字（如：20）"/>
       </el-form-item>
       <el-form-item label="">
         <el-button @click="dialog[2] = false">取 消</el-button>
@@ -203,11 +202,11 @@
       v-model="dialog[3]"
   >
     <el-form ref="form" :model="addClassForm" label-width="auto">
-      <el-form-item label="请输入班级名称">
-        <el-input v-model="addClassForm.name" placeholder="班级名称"/>
+      <el-form-item label="班级名称">
+        <el-input v-model="addClassForm.name" placeholder="请输入班级名称（如：计算机科学与技术七班）"/>
       </el-form-item>
-      <el-form-item label="请输入班级代码">
-        <el-input v-model="addClassForm.scode" placeholder="班级代码"/>
+      <el-form-item label="班级代码">
+        <el-input v-model="addClassForm.scode" placeholder="请输入两位班级数字代码（如：07）"/>
       </el-form-item>
       <el-form-item label="">
         <el-button @click="dialog[3] = false">取 消</el-button>
@@ -283,13 +282,6 @@ export default defineComponent({
           }
         ]
       }),
-      studentForm: {
-        student: student(),
-        fid: "",
-        did: "",
-        session: "",
-        sid: "",
-      },
       gradeForm: {
         fid: "",
         did: "",
@@ -451,6 +443,13 @@ export default defineComponent({
       }
 
     },
+    clearDepartments() {
+      this.departments = []
+      this.gradeForm.did = ""
+    },
+    clearSessions(){
+
+    },
     handleDelete(row) {
       // todo
       // 删除索引处
@@ -458,7 +457,6 @@ export default defineComponent({
       this.List.arr.splice(this.List.arr.indexOf(row), 1)
       switch (this.mode) {
         case 0:
-          this.deleteFaculty(row.fid)
           break;
         case 1:
           this.deleteDepartment(row.did)
@@ -503,7 +501,19 @@ export default defineComponent({
       }
     },
 
+    isCode(str) {
+      const num = Number(str)
+      if (isNaN(num) || str.length !== 2 || num < 0 || num > 99) {
+        return false
+      }
+      return true
+    },
+
     addFaculty(name, code) {
+      if (!this.isCode(code)) {
+        this.$message.error("请输入两位数字")
+        return
+      }
       this.$axios({
         method: "post",
         url: '/education/faculty',
@@ -531,6 +541,10 @@ export default defineComponent({
       })
     },
     addDepartment(id, name, code) {
+      if (!this.isCode(code)) {
+        this.$message.error("请输入两位数字")
+        return
+      }
       this.$axios({
         method: "post",
         url: '/education/department',
@@ -559,6 +573,10 @@ export default defineComponent({
       })
     },
     addSession(did, session) {
+      if (!this.isCode(session)) {
+        this.$message.error("年级只能为两位数字")
+        return
+      }
       this.$axios({
         method: "post",
         url: '/education/session',
@@ -586,6 +604,10 @@ export default defineComponent({
       })
     },
     addClass(did, session, scode, name) {
+      if (!this.isCode(scode)) {
+        this.$message.error("请输入两位数字")
+        return
+      }
       console.log(did, session, scode, name)
       this.$axios({
         method: "post",
@@ -860,7 +882,7 @@ export default defineComponent({
       // todo
       this.clear();
       this.departments = []
-      this.studentForm.did = ""
+      this.gradeForm.did = ""
       this.$axios.get("/mid/departments", {
         params: {
           fid: fid,
@@ -877,7 +899,7 @@ export default defineComponent({
       // todo
       this.clear();
       this.sessions = []
-      this.studentForm.session = ""
+      this.gradeForm.session = ""
       this.$axios.get("/mid/sessions", {
         params: {
           did: did,
@@ -918,7 +940,7 @@ export default defineComponent({
       // todo
       this.clear();
       this.classes = []
-      this.studentForm.sid = ""
+      this.gradeForm.sid = ""
       this.$axios.get("/mid/classes", {
         params: {
           did: did,

@@ -7,7 +7,66 @@
       </el-col>
       <el-col :span="8">
         <el-button type="primary" @click="handleFind()">查询</el-button>
-        <el-button type="primary" @click="addStudent()" style="margin-right: 15px;margin-left: 15px">添加学生</el-button>
+        <el-button type="info" @click="searchStudent()" style="margin-right: 15px;margin-left: 15px">检索</el-button>
+        <el-dialog
+            title="请输入学生信息"
+            v-model="dialogSearch"
+            width="30%"
+        >
+          <el-form ref="addForm" :model="studentForm" label-width="120px">
+            <el-form-item label="请选择学院">
+              <el-select v-model="studentForm.fid" placeholder="学院" @change="updateDepartments(studentForm.fid)">
+                <el-option
+                    v-for="item in faculties"
+                    :key="item.fid"
+                    :label="item.name"
+                    :value="item.fid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择系">
+              <el-select v-model="studentForm.did" clearable placeholder="系" @change="updateSessions(studentForm.did)">
+                <el-option
+                    v-for="item in departments"
+                    :key="item.did"
+                    :label="item.name"
+                    :value="item.did">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择年级">
+              <el-select v-model="studentForm.session" placeholder="年级"
+                         @change="updateClasses(studentForm.did,studentForm.session)">
+                <el-option
+                    v-for="item in sessions"
+                    :key="item.session"
+                    :label="item.session"
+                    :value="item.session">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="请选择班级">
+              <el-select v-model="studentForm.sid" placeholder="班级">
+                <el-option
+                    v-for="item in classes"
+                    :key="item.sid"
+                    :label="item.name"
+                    :value="item.sid">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <el-row :gutter="10" justify="center">
+            <el-col :span="6">
+              <el-button @click="dialogSearch = false">取 消</el-button>
+            </el-col>
+            <el-col :span="6">
+              <el-button type="primary" @click="handleSearch()">确 定</el-button>
+            </el-col>
+          </el-row>
+        </el-dialog>
+
+        <el-button type="success" @click="addStudent()" style="margin-right: 15px;margin-left: 15px">添加学生</el-button>
         <el-dialog
             title="请输入学生信息"
             v-model="dialogAdd"
@@ -165,8 +224,6 @@
             </el-col>
           </el-row>
         </el-dialog>
-
-
       </el-col>
     </el-row>
   </div>
@@ -326,6 +383,8 @@
     >
     </el-table-column>
   </el-table>
+
+
 </template>
 
 <script>
@@ -350,6 +409,7 @@ export default defineComponent({
       dialogModify: false,
       dialogAdd: false,
       dialogTransfer: false,
+      dialogSearch: false,
       showDelete: false,
       done: false,
       studentForm: {
@@ -389,6 +449,19 @@ export default defineComponent({
           this.$router.push('/login')
         }
       })
+    },
+    searchStudent() {
+      this.studentForm.student = student('', '', '男', '', '')
+      this.departments = []
+      this.sessions = []
+      this.classes = []
+      this.studentForm.fid = ""
+      this.studentForm.did = ""
+      this.studentForm.session = ""
+      this.studentForm.sid = ""
+
+      this.updateFaculties()
+      this.dialogSearch = true
     },
     clickEdit(index) {
       // todo
@@ -456,6 +529,7 @@ export default defineComponent({
         }
       }).then(res => {
         this.studentList.arr = res.data.students
+        this.$message.success('查询成功')
         console.log(res)
       }).catch(err => {
         if (err.response.status == 401) {
@@ -466,6 +540,34 @@ export default defineComponent({
           this.$message.error('服务错误')
         }
       })
+    },
+    handleSearch(){
+      this.$axios.get('/student/search', {
+        params: {
+          fid: this.studentForm.fid,
+          did: this.studentForm.did,
+          session: this.studentForm.session,
+          sid: this.studentForm.sid,
+        },
+        headers: {
+          "token": this.$cookies.get('LyFiveToken')
+        }
+      }).then(res => {
+        this.studentList.arr = res.data.students
+        this.$message.success('检索成功')
+        console.log(res)
+      }).catch(err => {
+        if (err.response.status == 401) {
+          this.$message.error('登录已过期，请重新登录')
+          this.$cookies.remove('LyFiveToken')
+
+          this.$router.push('/login')
+        } else {
+          this.$message.error('服务错误')
+        }
+      })
+
+      this.dialogSearch = false
     },
     handleDelete(index) {
       // todo

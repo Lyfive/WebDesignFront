@@ -40,14 +40,12 @@ export default {
   },
   data() {
     return {
-      userName: 'LyFive',
-      head: "https://github.githubassets.com/apple-touch-icon-144x144.png",
+      // userName: 'LyFive',
+      // head: "https://github.githubassets.com/apple-touch-icon-144x144.png",
       color: "rgb(235, 241, 246)",
     }
   },
   mounted() {
-    this.userName = this.$cookies.get('LyFive').username
-    this.head = this.$cookies.get('LyFive').head
   },
   methods: {
     handleOpen(key, keyPath) {
@@ -76,11 +74,11 @@ export default {
     },
   },
   computed: {
-    userInfo() {
-      return {
-        username: this.userName,
-        head: this.head,
-      }
+    userName(){
+      return this.$store.state.username
+    },
+    head(){
+      return this.$store.state.avatar
     }
   },
 }

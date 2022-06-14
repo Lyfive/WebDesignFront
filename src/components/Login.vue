@@ -10,43 +10,73 @@ export default {
       // 构建版本去掉public
     }
   },
-  created() {
+  mounted() {
     // 判断是否登录
-    if (this.$cookies.get("LyFiveToken") != null) {
-      this.$router.push("/manage")
-    }
+    this.check()
   },
   methods: {
+    check() {
+      if (this.$cookies.get("LyFiveToken") != null) {
+        this.$axios({
+          method: "POST",
+          url: "/check",
+          headers: {
+            token: this.$cookies.get("LyFiveToken")
+          }
+        }).then(res => {
+          console.log(res)
+          if (res.data.code == 200) {
+            this.updateUser(this.$cookies.get("LyFive").username, this.$cookies.get("LyFive").head)
+            this.$router.push("/manage")
+
+          } else {
+            this.$cookies.remove("LyFiveToken")
+          }
+        }).catch(err => {
+          this.$cookies.remove("LyFiveToken")
+        })
+      }
+    },
+    updateUser(username, avatar) {
+      this.$store.commit("setUsername", username)
+      this.$store.commit("setAvatar", avatar)
+    },
     submit() {
       // 生成版本
       let username = this.username;
       let password = this.password;
       // console.log(this.username, this.password)
-      if (this.$cookies.get("Token") != null) {
-        this.$router.push("/manage")
-      } else {
-        this.$axios.post("/login", {
-          username: username,
-          password: password,
-        })
-            .then(res => {
-              // console.log(res.headers)
-              // console.log(res.data['code'])
-              if (res.data['code'] === 200) {
-                this.$cookies.set("LyFive", res.data['data'], '1d')
-                this.$cookies.set("LyFiveToken", res.headers['token'], '1d')
-                console.log(this.$cookies.get("LyFiveToken"))
-                this.$store.state.user = 1
-                alert("登录成功！")
-                this.$router.push('/manage')
-              } else {
-                alert("账号或密码错误！")
-              }
-            })
-            .catch(err => {
-              console.error(err);
-            })
-      }
+
+      this.$axios.post("/login", {
+        username: username,
+        password: password,
+      })
+          .then(res => {
+            // console.log(res.headers)
+            // console.log(res.data['code'])
+            if (res.data['code'] === 200) {
+              console.log(res.data['data'])
+              this.$cookies.set("LyFive", res.data['data'], '1d')
+              this.$cookies.set("LyFiveToken", res.headers['token'], '1d')
+
+              this.updateUser(res.data['data']['username'], res.data['data']['head'])
+
+              console.log(this.$store.state.avatar)
+              console.log(this.$store.state.username)
+
+              console.log(this.$cookies.get("LyFiveToken"))
+
+              console.log(res.data["data"])
+
+              alert("登录成功！")
+              this.$router.push('/manage')
+            } else {
+              alert("账号或密码错误！")
+            }
+          })
+          .catch(err => {
+            console.error(err);
+          })
     },
     register() {
       this.$router.push("/register")
@@ -62,7 +92,8 @@ export default {
       this.status_22 = "22_open.png";
       this.status_33 = "33_open.png";
     }
-  },
+  }
+  ,
 }
 </script>
 

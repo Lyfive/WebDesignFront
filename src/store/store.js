@@ -3,34 +3,23 @@ import {
     createLogger
 } from 'vuex'
 
-const userInfo = {
+// Create a new store instance.
+const store = createStore({
+    plugins: [createLogger()],
     state() {
         return {
-            user: 0,
+            username: 'LyFive',
+            avatar: '',
         }
     },
     mutations: {
-        updateUser(state, {
-            user
-        }) {
-            state.user = user
-        }
-    },
-    actions: {
-        updateUser({
-                       commit
-                   }, payload) {
-            commit('updateUser', payload)
+        setUsername(state, username) {
+            state.username = username
+        },
+        setAvatar(state, avatar) {
+            state.avatar = avatar
         }
     }
-}
-
-// Create a new store instance.
-const store = createStore({
-    modules: {
-        userInfo
-    },
-    plugins: [createLogger()]
 })
 
 export default store

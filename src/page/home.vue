@@ -10,7 +10,7 @@
       >
         <template #header>
           <div class="card-header" style="text-align: center">
-            <el-image :src="system.head" fit="cover" style="width: 140px;height: 140px;"/>
+            <el-image :src="head" fit="cover" style="width: 140px;height: 140px;"/>
           </div>
         </template>
         <el-descriptions title="系统描述" column="1" border>
@@ -115,7 +115,6 @@ export default defineComponent({
   created() {
     // console.log(this.$cookies.get('LyFive'))
     // console.log(this.$cookies.get('LyFiveToken'))
-
   },
   methods: {
     showPopulation() {
@@ -131,6 +130,11 @@ export default defineComponent({
       echarts.init(document.getElementById('population')).setOption(this.option)
     },
 
+  },
+  computed: {
+    head() {
+      return this.$store.state.avatar
+    },
   },
 })
 </script>

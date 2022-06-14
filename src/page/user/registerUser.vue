@@ -18,11 +18,6 @@
       </div>
 
       <div class="inputContainer">
-        <input type="text" class="input" v-model="head" placeholder="a">
-        <label for="" class="label">头像</label>
-      </div>
-
-      <div class="inputContainer">
         <el-select v-model="level" class="checkbox" placeholder="权限" size="20px">
           <el-option
               :value="1"
